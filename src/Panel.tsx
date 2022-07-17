@@ -16,7 +16,7 @@ import { Close } from './Close';
 
 let FULL_HEIGHT = Dimensions.get('window').height;
 let FULL_WIDTH = Dimensions.get('window').width;
-let PANEL_HEIGHT = FULL_HEIGHT - 100;
+let PANEL_HEIGHT = FULL_HEIGHT - 300;
 
 const STATUS = {
   CLOSED: 0,
@@ -105,8 +105,10 @@ class SwipeablePanel extends Component<SwipeablePanelProps, SwipeablePanelState>
       },
       onPanResponderRelease: (evt, gestureState) => {
         const { onlyLarge, onlySmall } = this.props;
+        if (!this.props.isActive) {
+          this.props.onOpen();
+        }
         this.state.pan.flattenOffset();
-
         if (gestureState.dy === 0) this._animateTo(this.state.status);
         else if (gestureState.dy < -100 || gestureState.vy < -0.5) {
           if (this.state.status === STATUS.SMALL) this._animateTo(onlySmall ? STATUS.SMALL : STATUS.LARGE);
@@ -129,6 +131,8 @@ class SwipeablePanel extends Component<SwipeablePanelProps, SwipeablePanelState>
 
     if (isActive)
       this._animateTo(onlySmall ? STATUS.SMALL : openLarge ? STATUS.LARGE : onlyLarge ? STATUS.LARGE : STATUS.SMALL);
+    else
+      this._animateTo();
 
     Dimensions.addEventListener('change', this._onOrientationChange);
   };
@@ -196,7 +200,9 @@ class SwipeablePanel extends Component<SwipeablePanelProps, SwipeablePanelState>
         this.setState({
           showComponent: false,
         });
-      } else this.setState({ canScroll: newStatus === STATUS.LARGE ? true : false });
+      } else{
+        this.setState({ canScroll: newStatus === STATUS.LARGE ? true : false });
+      } 
     });
   };
 
@@ -214,13 +220,14 @@ class SwipeablePanel extends Component<SwipeablePanelProps, SwipeablePanelState>
       closeOnTouchOutside,
     } = this.props;
 
-    return showComponent ? (
+    return (
       <Animated.View
         style={[
           SwipeablePanelStyles.background,
           {
-            backgroundColor: noBackgroundOpacity ? 'rgba(0,0,0,0)' : 'rgba(0,0,0,0.5)',
-            height: allowTouchOutside ? 'auto' : deviceHeight,
+            // backgroundColor: !this.props.isActive ? 'rgba(0,0,0,0)' : 'rgba(0,0,0,0.5)',
+            // height: !this.props.isActive ? 'auto' : deviceHeight,
+            bottom : !this.props.isActive ? 60 : 0,
             width: deviceWidth,
           },
         ]}
@@ -253,9 +260,10 @@ class SwipeablePanel extends Component<SwipeablePanelProps, SwipeablePanelState>
         >
           {!this.props.noBar && <Bar barStyle={barStyle} barContainerStyle={barContainerStyle} />}
           {this.props.showCloseButton && (
-            <Close rootStyle={closeRootStyle} iconStyle={closeIconStyle} onPress={this.props.onClose} />
+            <Close rootStyle={closeRootStyle} iconStyle={closeIconStyle} onPress={this.props.isActive?this.props.onClose:this.props.onOpen} isPanelActive = {this.state.isActive} />
           )}
-          <ScrollView
+          {this.props.children}
+          {/* <ScrollView
             onTouchStart={() => {
               return false;
             }}
@@ -272,10 +280,10 @@ class SwipeablePanel extends Component<SwipeablePanelProps, SwipeablePanelState>
             ) : (
               this.props.children
             )}
-          </ScrollView>
+          </ScrollView> */}
         </Animated.View>
       </Animated.View>
-    ) : null;
+    );
   }
 }
 
@@ -283,7 +291,6 @@ const SwipeablePanelStyles = StyleSheet.create({
   background: {
     position: 'absolute',
     zIndex: 1,
-    bottom: 0,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(0,0,0,0.5)',
@@ -301,7 +308,7 @@ const SwipeablePanelStyles = StyleSheet.create({
     borderTopRightRadius: 20,
     borderBottomLeftRadius: 0,
     borderBottomRightRadius: 0,
-    overflow: 'hidden',
+    overflow: 'visible',
     shadowColor: '#000',
     shadowOffset: {
       width: 0,

@@ -1,24 +1,34 @@
 import * as React from "react";
-import { StyleSheet, TouchableOpacity, View } from "react-native";
+import { StyleSheet, TouchableOpacity, View, Image } from "react-native";
 
 type CloseProps = {
   onPress: () => void;
   rootStyle?: object;
   iconStyle?: object;
+  isPanelActive : boolean;
 };
 
-export const Close = ({ onPress, rootStyle, iconStyle }: CloseProps) => {
+export const Close = ({ onPress, rootStyle, iconStyle, isPanelActive }: CloseProps) => {
   return (
     <TouchableOpacity
       activeOpacity={0.5}
       onPress={() => onPress()}
-      style={[CloseStyles.closeButton, rootStyle]}
+      style={[CloseStyles.closeButton, rootStyle, {backgroundColor: isPanelActive ? "#6A6A6A" : "white"}]}
     >
+      <CloseIcon iconStyle = {iconStyle} isPanelActive = {isPanelActive}/>
+    </TouchableOpacity>
+  );
+};
+
+const CloseIcon = ({iconStyle, isPanelActive, }) => {
+  if (isPanelActive) { 
+    return (
+      <>
       <View
         style={[
           CloseStyles.iconLine,
           iconStyle,
-          { transform: [{ rotateZ: "220deg" }] },
+          { transform: [{ rotateZ: "45deg" }] },
         ]}
       />
       <View
@@ -28,27 +38,31 @@ export const Close = ({ onPress, rootStyle, iconStyle }: CloseProps) => {
           { transform: [{ rotateZ: "135deg" }] },
         ]}
       />
-    </TouchableOpacity>
-  );
-};
+      </>
+    )
+  } else { 
+    return ( 
+      <Image style = {{width : 20, height : 20}} source = {require('../../../assets/equalizer.png')} />
+    )
+  }
+}
 
 const CloseStyles = StyleSheet.create({
   closeButton: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
+    width: 48,
+    height: 48,
+    borderRadius: 16,
     position: "absolute",
-    right: 15,
-    top: 15,
-    backgroundColor: "#e2e2e2",
+    top: -70,
     zIndex: 3,
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
+    alignSelf : "center",
   },
   iconLine: {
     position: "absolute",
-    width: 18,
+    width: 20,
     height: 2,
     borderRadius: 2,
     backgroundColor: "white",

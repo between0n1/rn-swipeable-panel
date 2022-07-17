@@ -21,11 +21,11 @@ const BarStyles = StyleSheet.create({
     alignItems: 'center',
   },
   bar: {
-    width: '10%',
-    height: 5,
+    width: 56,
+    height: 4,
     borderRadius: 5,
     marginTop: 10,
     marginBottom: 10,
-    backgroundColor: '#e2e2e2',
+    backgroundColor: '#e8e8e8',
   },
 });
